@@ -89,7 +89,7 @@ namespace STXtoSQL.DataAccess
                 {
                     // Get count of rows inserted into TMP
                     cmd.CommandText = "SELECT COUNT(qlf) from SCORE_TMP_tbl_Sales";
-                    r = Convert.ToInt16(cmd.ExecuteScalar());
+                    r = Convert.ToInt32(cmd.ExecuteScalar());
                 }
                 catch(Exception)
                 {
@@ -133,7 +133,7 @@ namespace STXtoSQL.DataAccess
 
                 cmd.ExecuteNonQuery();
 
-                r = Convert.ToInt16(cmd.Parameters["@rows"].Value);
+                r = Convert.ToInt32(cmd.Parameters["@rows"].Value);
             }
             catch (Exception)
             {

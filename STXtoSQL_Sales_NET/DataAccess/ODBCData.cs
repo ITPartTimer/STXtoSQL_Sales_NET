@@ -14,8 +14,8 @@ namespace STXtoSQL.DataAccess
 
             List<Sales> lstSales = new List<Sales>();
 
-            //OdbcConnection conn = new OdbcConnection(ODBCDataConnString);
-            OdbcConnection conn = new OdbcConnection("DSN=Invera;UID=livcalod;Pwd=livcalod");
+            OdbcConnection conn = new OdbcConnection(ODBCDataConnString);
+            //OdbcConnection conn = new OdbcConnection("DSN=Invera;UID=livcalod;Pwd=livcalod");
             
 
             try
@@ -47,9 +47,9 @@ namespace STXtoSQL.DataAccess
                         b.val = rdr["stn_tot_val"].ToString();
                         b.avg_val = rdr["stn_tot_avg_val"].ToString();
                         b.inv_dt = rdr["stn_inv_dt"].ToString();
-                        b.mn = Convert.ToInt16(rdr["mn"]);
-                        b.dy = Convert.ToInt16(rdr["dy"]);
-                        b.yr = Convert.ToInt16(rdr["yr"]);
+                        b.mn = Convert.ToInt32(rdr["mn"]);
+                        b.dy = Convert.ToInt32(rdr["dy"]);
+                        b.yr = Convert.ToInt32(rdr["yr"]);
 
                         lstSales.Add(b);
                     }

@@ -71,6 +71,7 @@ namespace STXtoSQL_Sales_NET
 
             SQLData objSQL = new SQLData();
 
+            // Only work in SQL database, if records were retreived from Stratix
             if (lstSales.Count != 0)
             {
                 // Put lstSales into TMP Sales table
@@ -83,18 +84,20 @@ namespace STXtoSQL_Sales_NET
                 {
                     Console.WriteLine(ex.Message.ToString());
                 }
+
+                // Call SP to put TMP Sales into Sales table
+                try
+                {
+                    rowCnt = objSQL.Write_TMP_to_Sales();
+                    Console.WriteLine("Sales inserted: " + rowCnt.ToString());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message.ToString());
+                }
             }
 
-            // Call SP to put TMP Sales into Sales table
-            try
-            {
-                rowCnt = objSQL.Write_TMP_to_Sales();
-                Console.WriteLine("Sales inserted: " + rowCnt.ToString());
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message.ToString());
-            }
+           
             #endregion
 
             // Testing

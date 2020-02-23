@@ -14,7 +14,7 @@ namespace STXtoSQL
     {
         private string _STRATIXDataConnString;
 
-        private string _ODBCDataConnSting;
+        private string _ODBCDataConnString;
 
         // SQL Server Database connection string
         public string STRATIXDataConnString
@@ -45,15 +45,15 @@ namespace STXtoSQL
             {
                 //string dsn = ConfigurationManager.AppSettings.Get("DSN");
 
-                _STRATIXDataConnString = "DSN=Invera;UID=livcalod;Pwd=livcalod";
+                _ODBCDataConnString = "DSN=Invera;UID=livcalod;Pwd=livcalod";
 
-                if (string.IsNullOrEmpty(_STRATIXDataConnString))
+                if (string.IsNullOrEmpty(_ODBCDataConnString))
                 {
                     throw new NullReferenceException("Empty Connection String");
                 }
                 else
                 {
-                    return _ODBCDataConnSting;
+                    return _ODBCDataConnString;
                 }
 
             }
