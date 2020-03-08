@@ -12,9 +12,6 @@ namespace STXtoSQL_Sales_NET
     {
         static void Main(string[] args)
         {
-            // Args will change based on STXtoSQL program goal
-            //List<string> lstArgs = new List<string>();
-
             string date1 = "";
             string date2 = "";
 
@@ -22,17 +19,29 @@ namespace STXtoSQL_Sales_NET
             {
                 if (args.Length > 0)
                 {
-                    // args = date range
+                    /*
+                     * Must be in format mm/dd/yyyy.  No time part
+                     */
                     date1 = args[0].ToString();
                     date2 = args[1].ToString();
                 }
                 else
                 {
-                    // No args = yesterday
-                    // Yesterday = -1.  testing = -2 or more
-                    DateTime dtYst = DateTime.Now.AddDays(-3);
-                    date1 = dtYst.Month.ToString() + "/" + dtYst.Day.ToString() + "/" + dtYst.Year.ToString();
-                    date2 = date1;
+                    // No args = current month to yesterday
+                    DateTime dtToday = DateTime.Today;
+
+                    DateTime dtFirst = new DateTime(dtToday.Year, dtToday.Month, 1);
+
+                    /*
+                     * Need one date part of datetime.
+                     * Time and date are separated by a space, so split the string
+                     * and only use the 1st element.
+                     */
+                    string[] date1Split = dtFirst.ToString().Split(' ');
+                    string[] date2Split = dtToday.AddDays(-1).ToString().Split(' ');
+
+                    date1 = date1Split[0];
+                    date2 = date2Split[0];
                 }     
             }
             catch (Exception ex)
@@ -48,6 +57,7 @@ namespace STXtoSQL_Sales_NET
 
             List<Sales> lstSales = new List<Sales>();
 
+            // Get Sales from Stratix and put in List<Sales>
             try
             {
                 lstSales = objODBC.Get_Sales(date1, date2); 
@@ -74,35 +84,33 @@ namespace STXtoSQL_Sales_NET
             // Only work in SQL database, if records were retreived from Stratix
             if (lstSales.Count != 0)
             {
-                // Put lstSales into TMP Sales table
+                // Put lstSales into IMPORT Sales table
                 try
                 {
-                    rowCnt = objSQL.Write_Sales_TMP(lstSales);
-                    Console.WriteLine("TMP inserted: " + rowCnt.ToString());
+                    rowCnt = objSQL.Write_Sales_to_IMPORT(lstSales);
+                    Console.WriteLine("IMPORT inserted: " + rowCnt.ToString());
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message.ToString());
                 }
 
-                // Call SP to put TMP Sales into Sales table
+                // Call SP to put IMPORT Sales into Sales table
                 try
                 {
-                    rowCnt = objSQL.Write_TMP_to_Sales();
+                    rowCnt = objSQL.Write_IMPORT_to_Sales(date1, date2);
                     Console.WriteLine("Sales inserted: " + rowCnt.ToString());
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message.ToString());
                 }
-            }
-
-           
+            }        
             #endregion
 
             // Testing
             Console.WriteLine("Press key to exit");
             Console.ReadKey();
         }
-        }
+    }
 }

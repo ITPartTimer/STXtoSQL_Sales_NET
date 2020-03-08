@@ -12,6 +12,7 @@ namespace STXtoSQL.DataAccess
         public List<Sales> Get_Sales(string date1, string date2)
         {
 
+
             List<Sales> lstSales = new List<Sales>();
 
             OdbcConnection conn = new OdbcConnection(ODBCDataConnString);

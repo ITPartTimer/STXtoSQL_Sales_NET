@@ -12,9 +12,9 @@ namespace STXtoSQL.DataAccess
 {
     public class SQLData : Helpers
     {
-        public int Write_Sales_TMP(List<Sales> lstSales)
+        public int Write_Sales_to_IMPORT(List<Sales> lstSales)
         {
-            // Returning rows inserted into TMP
+            // Returning rows inserted into IMPORT
             int r = 0;
 
             SqlConnection conn = new SqlConnection(STRATIXDataConnString);
@@ -31,10 +31,10 @@ namespace STXtoSQL.DataAccess
                 cmd.CommandType = CommandType.Text;
                 cmd.Connection = conn;
 
-                // First empty TMP table
+                // First empty IMPORT table
                 try
                 {
-                    cmd.CommandText = "DELETE from SCORE_TMP_tbl_Sales";
+                    cmd.CommandText = "DELETE from SCORE_IMPORT_tbl_Sales";
 
                     cmd.ExecuteNonQuery();
                 }
@@ -45,8 +45,8 @@ namespace STXtoSQL.DataAccess
 
                 try
                 {
-                    // Change Text to Insert data into TMP
-                    cmd.CommandText = "INSERT INTO SCORE_TMP_tbl_Sales (qlf,brh,pep,wgt,val,ave_val,inv_dt,actvy_mn,actvy_dy,actvy_yr) " +
+                    // Change Text to Insert data into IMPORT
+                    cmd.CommandText = "INSERT INTO SCORE_IMPORT_tbl_Sales (qlf,brh,pep,wgt,val,ave_val,inv_dt,actvy_mn,actvy_dy,actvy_yr) " +
                                         "VALUES (@qlf,@brh,@pep,@wgt,@val,@ave_val,@inv_dt,@actvy_mn,@actvy_dy,@actvy_yr)";
 
                     cmd.Parameters.Add("@qlf", SqlDbType.Char);
@@ -81,14 +81,14 @@ namespace STXtoSQL.DataAccess
                 }
                 catch (Exception)
                 {
-                    // Shouldn't lave a Transaction hanging, so rollback
+                    // Shouldn't leave a Transaction hanging, so rollback
                     trans.Rollback();
                     throw;
                 }
                 try
                 {
-                    // Get count of rows inserted into TMP
-                    cmd.CommandText = "SELECT COUNT(qlf) from SCORE_TMP_tbl_Sales";
+                    // Get count of rows inserted into IMPORT
+                    cmd.CommandText = "SELECT COUNT(qlf) from SCORE_IMPORT_tbl_Sales";
                     r = Convert.ToInt32(cmd.ExecuteScalar());
                 }
                 catch(Exception)
@@ -110,9 +110,9 @@ namespace STXtoSQL.DataAccess
             return r;
         }
 
-        public int Write_TMP_to_Sales()
+        public int Write_IMPORT_to_Sales(string date1, string date2)
         {
-            // Returning rows inserted into TMP
+            // Returning rows inserted into IMPORT
             int r = 0;
 
             SqlConnection conn = new SqlConnection(STRATIXDataConnString);
@@ -126,9 +126,11 @@ namespace STXtoSQL.DataAccess
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Connection = conn;
 
-                // Call SP to copy TMP to Sales table.  Return rows inserted.
-                cmd.CommandText ="SCORE_proc_TMP_to_Sales";
+                // Call SP to copy IMPORT to Sales table.  Return rows inserted.
+                cmd.CommandText ="SCORE_proc_IMPORT_to_Sales";
 
+                AddParamToSQLCmd(cmd, "@date1", SqlDbType.DateTime, 4, ParameterDirection.Input, date1);
+                AddParamToSQLCmd(cmd, "@date2", SqlDbType.DateTime, 4, ParameterDirection.Input, date2);
                 AddParamToSQLCmd(cmd, "@rows", SqlDbType.Int, 8, ParameterDirection.Output);
 
                 cmd.ExecuteNonQuery();
