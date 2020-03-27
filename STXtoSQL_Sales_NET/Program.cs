@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using STXtoSQL.DataAccess;
 using STXtoSQL.Models;
+using STXtoSQL.Log;
 
 namespace STXtoSQL_Sales_NET
 {
@@ -12,8 +13,14 @@ namespace STXtoSQL_Sales_NET
     {
         static void Main(string[] args)
         {
+            Logger.LogWrite("MSG", "Start: " + DateTime.Now.ToString());
+
+            // Args will change based on STXtoSQL program goal
             string date1 = "";
             string date2 = "";
+            int odbcCnt = 0;
+            int insertCnt = 0;
+            int importCnt = 0;
 
             try
             {
@@ -42,15 +49,15 @@ namespace STXtoSQL_Sales_NET
 
                     date1 = date1Split[0];
                     date2 = date2Split[0];
-                }     
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message.ToString());
+                Logger.LogWrite("EXC", ex);
+                Logger.LogWrite("MSG", "Return");
+                return;
+                //Console.WriteLine(ex.Message.ToString());
             }
-
-            // Testing
-            Console.WriteLine(date1 + " / " + date2);
 
             #region FromSTRATIX
             ODBCData objODBC = new ODBCData();
@@ -64,53 +71,59 @@ namespace STXtoSQL_Sales_NET
             }           
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message.ToString());
+                Logger.LogWrite("EXC", ex);
+                Logger.LogWrite("MSG", "Return");
+                //Console.WriteLine(ex.Message.ToString());
             }
-
-            // Testing
-            Console.WriteLine("Retrieve records: " + lstSales.Count.ToString());
-
-            //foreach (Sales b in lstSales)
-            //{
-            //    Console.WriteLine(b.qlf + " / " + b.brh + " / " + b.pep + " / " + b.wgt + " / " + b.val + " / " + b.avg_val + " / " + b.inv_dt + " / " + b.mn.ToString() + " / " + b.dy.ToString() + " / " + b.yr.ToString());
-            //}
             #endregion
 
             #region ToSQL
-            int rowCnt = 0;
-
             SQLData objSQL = new SQLData();
 
             // Only work in SQL database, if records were retreived from Stratix
             if (lstSales.Count != 0)
             {
+                odbcCnt = lstSales.Count;
+
                 // Put lstSales into IMPORT Sales table
                 try
                 {
-                    rowCnt = objSQL.Write_Sales_to_IMPORT(lstSales);
-                    Console.WriteLine("IMPORT inserted: " + rowCnt.ToString());
+                    importCnt = objSQL.Write_Sales_to_IMPORT(lstSales);
+
+                    //Console.WriteLine("IMPORT inserted: " + importCnt.ToString());
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message.ToString());
+                    Logger.LogWrite("EXC", ex);
+                    Logger.LogWrite("MSG", "Return");
+                    //Console.WriteLine(ex.Message.ToString());
                 }
 
                 // Call SP to put IMPORT Sales into Sales table
                 try
                 {
-                    rowCnt = objSQL.Write_IMPORT_to_Sales(date1, date2);
-                    Console.WriteLine("Sales inserted: " + rowCnt.ToString());
+                    insertCnt = objSQL.Write_IMPORT_to_Sales(date1, date2);
+
+                    //Console.WriteLine("Sales inserted: " + salesCnt.ToString());
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message.ToString());
+                    Logger.LogWrite("EXC", ex);
+                    Logger.LogWrite("MSG", "Return");
+                    //Console.WriteLine(ex.Message.ToString());
                 }
-            }        
+
+                Logger.LogWrite("MSG", "Range=" + date1 + ":" + date2 + " ODBC/IMPORT/SALES=" + odbcCnt.ToString() + ":" + importCnt.ToString() + ":" + insertCnt.ToString());
+            }
+            else
+                Logger.LogWrite("MSG", "No data");
+
+            Logger.LogWrite("MSG", "End: " + DateTime.Now.ToString());
             #endregion
 
             // Testing
-            Console.WriteLine("Press key to exit");
-            Console.ReadKey();
+            //Console.WriteLine("Press key to exit");
+            //Console.ReadKey();
         }
     }
 }
