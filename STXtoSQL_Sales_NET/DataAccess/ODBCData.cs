@@ -26,12 +26,16 @@ namespace STXtoSQL.DataAccess
                 // Try to split with verbatim literal
                 OdbcCommand cmd = conn.CreateCommand();
 
+                // The and..or..192 part of the where removes duplicate Wallner rows.  Wallner is toll.
                 cmd.CommandText = @"select stn_sls_qlf,stn_shpt_brh,prm_pep[1,2] as pep,stn_blg_wgt,stn_tot_val,stn_tot_avg_val,stn_inv_dt,
 	                                MONTH(stn_inv_dt) as mn,DAY(stn_inv_dt) as dy,YEAR(stn_inv_dt) as yr
 	                                from sahstn_rec inner join scrbrh_rec on stn_shpt_brh = brh_brh
 	                                inner join inrprm_rec on stn_frm = prm_frm
 	                                and stn_grd = prm_grd and stn_size = prm_size and stn_fnsh = prm_fnsh
-	                                where stn_inv_dt >= '" + date1 + "' and stn_inv_dt <= '" + date2 + "'";       
+	                                where ((stn_sls_qlf = 'T' and stn_sld_cus_id = 192 and stn_part_cus_id = 192)
+                                    or (stn_sls_qlf = 'T' and stn_sld_cus_id <> 192)
+                                    or (stn_sls_qlf <> 'T' and stn_sld_cus_id <> 192))
+                                    and stn_inv_dt >= '" + date1 + "' and stn_inv_dt <= '" + date2 + "'";       
 
                 OdbcDataReader rdr = cmd.ExecuteReader();
 
